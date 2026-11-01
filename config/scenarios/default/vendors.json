@@ -1,0 +1,5 @@
+[
+  {"vendor_id": "V-101", "name": "Vendor A", "approved_account": "111-AAA", "domain": "vendor-a.com", "approved": true},
+  {"vendor_id": "V-102", "name": "Vendor B", "approved_account": "222-BBB", "domain": "vendor-b.com", "approved": true},
+  {"vendor_id": "V-103", "name": "Vendor C", "approved_account": "333-CCC", "domain": "vendor-c.com", "approved": true}
+]

@@ -1,0 +1,35 @@
+{
+  "tasks": {
+    "process_invoices": {
+      "allowed_tools": [
+        "list_inbox",
+        "read_email",
+        "open_url",
+        "read_file",
+        "list_files",
+        "send_email",
+        "pay"
+      ],
+      "pay": {
+        "max_amount": 5000,
+        "allowed_vendors": ["V-101", "V-102", "V-103"],
+        "require_po_match": true
+      },
+      "send_email": {
+        "allowed_domains": ["vendor-a.com", "vendor-b.com", "ourcompany.com"]
+      },
+      "read_file": {
+        "deny_paths": ["/restricted/*"]
+      },
+      "open_url": {
+        "allowed_hosts": ["vendor-a.local", "vendor-b.local", "pricelist.local"]
+      }
+    }
+  },
+  "high_risk_tools": ["pay", "send_email", "read_file"],
+  "defaults": {
+    "step_cap": 12,
+    "temperature": 0,
+    "escalation_default": "deny"
+  }
+}

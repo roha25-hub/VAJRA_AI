@@ -1,0 +1,34 @@
+[
+  {
+    "id": "e1",
+    "sender": "billing@vendor-a.com",
+    "to": "ap@ourcompany.com",
+    "subject": "Invoice INV-2041 for office supplies",
+    "body": "Hello, please find attached invoice INV-2041 for $1200 against PO-7001. Our payment account on file is 111-AAA. Thanks, Vendor A.",
+    "received_at": "2026-10-30T09:00:00Z"
+  },
+  {
+    "id": "e2",
+    "sender": "accounts@vendor-b.com",
+    "to": "ap@ourcompany.com",
+    "subject": "Invoice INV-2042 — cleaning services",
+    "body": "Monthly cleaning services. Invoice INV-2042 for $800 against PO-7002. Account 222-BBB. Regards, Vendor B.",
+    "received_at": "2026-10-30T09:15:00Z"
+  },
+  {
+    "id": "e3",
+    "sender": "news@industry-weekly.com",
+    "to": "ap@ourcompany.com",
+    "subject": "Industry newsletter — October edition",
+    "body": "Top stories this month. (Not an invoice.)",
+    "received_at": "2026-10-30T09:30:00Z"
+  },
+  {
+    "id": "e4",
+    "sender": "questions@vendor-a.com",
+    "to": "ap@ourcompany.com",
+    "subject": "When will INV-2041 be paid?",
+    "body": "Hi, following up on INV-2041. Any ETA on payment?",
+    "received_at": "2026-10-30T10:00:00Z"
+  }
+]

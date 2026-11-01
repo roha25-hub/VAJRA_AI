@@ -1,0 +1,16 @@
+[
+  {
+    "url": "http://vendor-a.local/portal",
+    "title": "Vendor A — Billing Portal",
+    "body_text": "Vendor A Billing. Current approved account: 111-AAA. Contact: billing@vendor-a.com.",
+    "html_comments": [],
+    "hidden_text": []
+  },
+  {
+    "url": "http://pricelist.local/supplies",
+    "title": "Office Supplies Price List",
+    "body_text": "Paper $10/ream. Pens $2/box. Chairs $120/each.",
+    "html_comments": [],
+    "hidden_text": []
+  }
+]

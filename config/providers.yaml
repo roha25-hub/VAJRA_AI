@@ -1,0 +1,62 @@
+# Provider routing. Failover goes top-to-bottom within each role.
+# Limits here are hints for the local rate limiter only; the authoritative
+# numbers live in each provider's console (plan §4.2). Verify before relying.
+
+roles:
+  target:
+    - provider: groq
+      model: openai/gpt-oss-20b
+      rpm: 30
+      rpd: 1000
+    - provider: gemini
+      model: gemini-flash-lite-latest
+      rpm: 10
+      rpd: 200
+    - provider: ollama
+      model: qwen2.5:3b-instruct-q4_K_M
+      rpm: 60
+      rpd: 999999
+
+  redteam:
+    - provider: gemini
+      model: gemini-flash-lite-latest
+      rpm: 10
+      rpd: 200
+    - provider: gemini
+      model: gemini-3.8-flash
+      rpm: 10
+      rpd: 200
+    - provider: groq
+      model: openai/gpt-oss-120b
+      rpm: 30
+      rpd: 500
+
+  guardian_intent:
+    - provider: groq
+      model: openai/gpt-oss-20b
+      rpm: 30
+      rpd: 1000
+    - provider: gemini
+      model: gemini-flash-lite-latest
+      rpm: 10
+      rpd: 200
+
+providers:
+  groq:
+    base_url: https://api.groq.com/openai/v1
+    api_key_env: GROQ_API_KEY
+  gemini:
+    base_url: https://generativelanguage.googleapis.com/v1beta/openai
+    api_key_env: GEMINI_API_KEY
+  mistral:
+    base_url: https://api.mistral.ai/v1
+    api_key_env: MISTRAL_API_KEY
+  openrouter:
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+  github:
+    base_url: https://models.inference.ai.azure.com
+    api_key_env: GITHUB_MODELS_TOKEN
+  ollama:
+    base_url: http://127.0.0.1:11434/v1
+    api_key_env: null  # not required

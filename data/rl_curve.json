@@ -1,0 +1,23 @@
+[
+  {
+    "round": 0,
+    "attacks": 5,
+    "successes": 0,
+    "asr_pct": 0.0,
+    "corpus_size": 0
+  },
+  {
+    "round": 1,
+    "attacks": 5,
+    "successes": 0,
+    "asr_pct": 0.0,
+    "corpus_size": 0
+  },
+  {
+    "round": 2,
+    "attacks": 5,
+    "successes": 0,
+    "asr_pct": 0.0,
+    "corpus_size": 0
+  }
+]

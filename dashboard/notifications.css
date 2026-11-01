@@ -1,0 +1,53 @@
+/* Notifications page */
+
+.notif-list {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-top: 10px;
+  max-height: 68vh; overflow-y: auto;
+}
+.notif-list .empty { color: var(--muted); padding: 20px; text-align: center; }
+
+.notif {
+  display: grid;
+  grid-template-columns: 10px 110px 1fr 140px 120px;
+  gap: 14px; align-items: center;
+  padding: 12px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 8px;
+  animation: notifIn 0.35s ease both;
+}
+@keyframes notifIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.notif.breach { border-left-color: var(--red); background: linear-gradient(90deg, rgba(239,68,68,0.08), transparent 40%); }
+.notif.safe   { border-left-color: var(--green); background: linear-gradient(90deg, rgba(34,197,94,0.07), transparent 40%); }
+
+.notif .pulse { width: 10px; height: 10px; border-radius: 50%; }
+.notif.breach .pulse { background: var(--red); box-shadow: 0 0 10px var(--red); animation: pulseDot 1.6s ease-in-out infinite; }
+.notif.safe   .pulse { background: var(--green); }
+@keyframes pulseDot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.5; transform: scale(0.75); }
+}
+
+.notif .tag {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+}
+.notif.breach .tag { background: rgba(239,68,68,0.15); color: var(--red); }
+.notif.safe   .tag { background: rgba(34,197,94,0.15); color: var(--green); }
+
+.notif .msg { font-size: 13px; line-height: 1.4; }
+.notif .msg b { color: var(--text); }
+.notif .meta { font-size: 11px; color: var(--muted); font-family: ui-monospace, Menlo, Consolas, monospace; }
+.notif .ts   { font-size: 11px; color: var(--muted); text-align: right; }
+
+/* Sidebar unread dot */
+.nav .item .dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--red); margin-left: 6px; vertical-align: middle;
+  box-shadow: 0 0 6px var(--red); animation: pulseDot 1.6s ease-in-out infinite;
+}

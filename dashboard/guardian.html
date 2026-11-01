@@ -1,0 +1,200 @@
+<!-- RAKSHAK — classical knight guardian for VAJRA -->
+<div class="guardian-slot" aria-hidden="true">
+  <svg viewBox="0 0 220 320" width="100%" height="100%" class="guardian-svg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Polished steel plate -->
+      <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#e6ecf7"/>
+        <stop offset="30%"  stop-color="#9aa7bf"/>
+        <stop offset="60%"  stop-color="#4a5577"/>
+        <stop offset="100%" stop-color="#1a2338"/>
+      </linearGradient>
+      <linearGradient id="steelDark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#6b7691"/>
+        <stop offset="100%" stop-color="#141a2b"/>
+      </linearGradient>
+      <!-- Gold trim -->
+      <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#fde68a"/>
+        <stop offset="55%"  stop-color="#d4a017"/>
+        <stop offset="100%" stop-color="#6b4a0a"/>
+      </linearGradient>
+      <!-- Royal cape / cloth -->
+      <linearGradient id="cloak" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#1e40af"/>
+        <stop offset="60%"  stop-color="#1e3a8a"/>
+        <stop offset="100%" stop-color="#0b1225"/>
+      </linearGradient>
+      <!-- Shield face -->
+      <linearGradient id="shieldFace" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#1e3a8a"/>
+        <stop offset="100%" stop-color="#0b1225"/>
+      </linearGradient>
+      <!-- Enchanted blade -->
+      <linearGradient id="blade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#ffffff"/>
+        <stop offset="35%"  stop-color="#dbeafe"/>
+        <stop offset="70%"  stop-color="#93c5fd"/>
+        <stop offset="100%" stop-color="#1e40af"/>
+      </linearGradient>
+      <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#ffffff"/>
+        <stop offset="50%"  stop-color="#67e8f9"/>
+        <stop offset="100%" stop-color="#0e7490" stop-opacity="0"/>
+      </radialGradient>
+      <!-- Chainmail pattern -->
+      <pattern id="mail" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.1" fill="#3d4863" stroke="#1b2237" stroke-width="0.3"/>
+      </pattern>
+      <!-- Filters -->
+      <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="innerShade" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.5"/>
+      </filter>
+    </defs>
+
+    <!-- ground glow -->
+    <ellipse cx="110" cy="302" rx="62" ry="7" fill="#1e40af" opacity="0.4" filter="url(#softGlow)"/>
+    <ellipse cx="110" cy="304" rx="40" ry="3" fill="#67e8f9" opacity="0.3" filter="url(#softGlow)"/>
+
+    <!-- CLOAK behind body -->
+    <path class="g-cape" d="M62 110 Q 50 170 55 270 L 75 280 L 90 150 Z
+                            M158 110 Q 170 170 165 270 L 145 280 L 130 150 Z"
+          fill="url(#cloak)" stroke="#60a5fa" stroke-width="0.6" opacity="0.95"/>
+
+    <g class="g-body">
+      <!-- RIGHT ARM + SWORD (held tip-down, grounded like a sentinel) -->
+      <g class="g-sword">
+        <!-- shoulder cop -->
+        <ellipse cx="155" cy="120" rx="14" ry="11" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+        <path d="M148 117 Q 155 112 162 117" stroke="url(#gold)" stroke-width="1.3" fill="none"/>
+        <!-- upper arm -->
+        <path d="M148 128 L 160 128 L 164 170 L 152 174 Z" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+        <!-- elbow cop -->
+        <circle cx="158" cy="172" r="5" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+        <!-- forearm (gauntlet) -->
+        <path d="M152 176 L 164 176 L 170 215 L 156 218 Z" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+        <!-- knuckled gauntlet -->
+        <path d="M156 215 L 170 215 L 172 224 L 154 224 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+        <!-- pommel + grip -->
+        <circle cx="163" cy="228" r="4" fill="url(#gold)" stroke="#6b4a0a" stroke-width="0.6"/>
+        <rect x="160" y="230" width="6" height="12" fill="#3b2410" stroke="#1a1008" stroke-width="0.4"/>
+        <!-- cross-guard -->
+        <path d="M148 244 L 178 244 L 176 248 L 150 248 Z" fill="url(#gold)" stroke="#6b4a0a" stroke-width="0.6"/>
+        <!-- gold filigree on guard -->
+        <circle cx="163" cy="246" r="1.4" fill="#fde68a"/>
+        <!-- blade (tip-down, grounded) -->
+        <path d="M160 250 L 166 250 L 165 302 L 161 302 Z" fill="url(#blade)" filter="url(#softGlow)"/>
+        <path d="M162.5 252 L 163.5 252 L 163 300 L 162.5 300 Z" fill="#ffffff" opacity="0.95"/>
+        <!-- blade fuller -->
+        <line x1="163" y1="254" x2="163" y2="298" stroke="#60a5fa" stroke-width="0.4" opacity="0.6"/>
+      </g>
+
+      <!-- LEFT ARM + KITE SHIELD -->
+      <g class="g-shield">
+        <!-- shoulder cop -->
+        <ellipse cx="65" cy="120" rx="14" ry="11" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+        <path d="M58 117 Q 65 112 72 117" stroke="url(#gold)" stroke-width="1.3" fill="none"/>
+        <!-- arm behind shield -->
+        <path d="M62 128 L 72 128 L 76 180 L 64 184 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.5" opacity="0.9"/>
+        <!-- KITE SHIELD -->
+        <path d="M34 130 Q 24 136 24 160 Q 26 200 48 230 Q 58 240 70 230 Q 92 200 94 160 Q 94 136 84 130 Z"
+              fill="url(#shieldFace)" stroke="url(#gold)" stroke-width="2.2" filter="url(#softGlow)"/>
+        <!-- shield rim bevel -->
+        <path d="M36 134 Q 28 140 28 160 Q 30 196 50 224 Q 58 232 68 224 Q 88 196 90 160 Q 90 140 82 134 Z"
+              fill="none" stroke="#60a5fa" stroke-width="0.9" opacity="0.7"/>
+        <!-- heraldic cross -->
+        <path d="M59 142 L 59 220 M 32 178 L 86 178" stroke="url(#gold)" stroke-width="3.2"/>
+        <path d="M59 142 L 59 220 M 32 178 L 86 178" stroke="#fde68a" stroke-width="1.0" opacity="0.9"/>
+        <!-- central boss / emblem = Vajra thunderbolt -->
+        <circle cx="59" cy="178" r="9" fill="#0b1225" stroke="url(#gold)" stroke-width="1.5"/>
+        <path d="M55 174 L 62 178 L 55 178 L 63 184 L 56 180 L 63 180 Z"
+              fill="#67e8f9" filter="url(#softGlow)"/>
+        <!-- shield studs -->
+        <circle cx="37" cy="150" r="1.4" fill="url(#gold)"/>
+        <circle cx="81" cy="150" r="1.4" fill="url(#gold)"/>
+        <circle cx="40" cy="210" r="1.4" fill="url(#gold)"/>
+        <circle cx="78" cy="210" r="1.4" fill="url(#gold)"/>
+      </g>
+
+      <!-- NECK gorget -->
+      <path d="M95 92 L125 92 L128 106 L92 106 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+      <line x1="110" y1="94" x2="110" y2="104" stroke="url(#gold)" stroke-width="0.8"/>
+
+      <!-- BREASTPLATE -->
+      <path d="M78 106 Q 110 100 142 106 L 148 170 Q 110 184 72 170 Z"
+            fill="url(#steel)" stroke="#1a2338" stroke-width="1.2"/>
+      <!-- center ridge -->
+      <line x1="110" y1="106" x2="110" y2="178" stroke="#1a2338" stroke-width="1.2" opacity="0.7"/>
+      <!-- shoulder plates (segmented) -->
+      <path d="M78 108 L 88 108 L 90 118 L 76 120 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.5"/>
+      <path d="M132 108 L 142 108 L 144 120 L 130 118 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.5"/>
+      <!-- lower cuirass fauld lines -->
+      <path d="M74 150 Q 110 162 146 150" stroke="#1a2338" stroke-width="0.8" fill="none" opacity="0.6"/>
+      <path d="M72 162 Q 110 174 148 162" stroke="#1a2338" stroke-width="0.8" fill="none" opacity="0.6"/>
+      <!-- Heraldic chest emblem: rayed sun / lion head simplified -->
+      <circle cx="110" cy="135" r="12" fill="url(#shieldFace)" stroke="url(#gold)" stroke-width="1.5"/>
+      <path d="M110 126 L 112 134 L 120 135 L 113 139 L 115 148 L 110 143 L 105 148 L 107 139 L 100 135 L 108 134 Z"
+            fill="url(#gold)" stroke="#6b4a0a" stroke-width="0.4"/>
+      <!-- rivets on plate -->
+      <circle cx="82" cy="112" r="1.1" fill="#2a3350"/>
+      <circle cx="138" cy="112" r="1.1" fill="#2a3350"/>
+      <circle cx="78" cy="170" r="1.1" fill="#2a3350"/>
+      <circle cx="142" cy="170" r="1.1" fill="#2a3350"/>
+
+      <!-- CHAINMAIL skirt -->
+      <path d="M72 170 Q 110 184 148 170 L 150 196 Q 110 212 70 196 Z" fill="url(#mail)" stroke="#1a2338" stroke-width="0.8"/>
+      <!-- Belt with gold buckle -->
+      <rect x="72" y="194" width="76" height="9" fill="#2a1a08" stroke="#120a04" stroke-width="0.6"/>
+      <rect x="104" y="194" width="12" height="9" fill="url(#gold)" stroke="#6b4a0a" stroke-width="0.6"/>
+      <circle cx="110" cy="198.5" r="1.6" fill="#67e8f9" filter="url(#softGlow)"/>
+
+      <!-- GREAT HELM -->
+      <!-- helmet dome -->
+      <path d="M86 48 Q 110 36 134 48 L 136 92 Q 110 102 84 92 Z"
+            fill="url(#steel)" stroke="#1a2338" stroke-width="1.3"/>
+      <!-- helmet facets -->
+      <line x1="110" y1="38" x2="110" y2="92" stroke="#1a2338" stroke-width="0.8" opacity="0.65"/>
+      <line x1="94" y1="46" x2="100" y2="92" stroke="#1a2338" stroke-width="0.5" opacity="0.5"/>
+      <line x1="126" y1="46" x2="120" y2="92" stroke="#1a2338" stroke-width="0.5" opacity="0.5"/>
+      <!-- visor slits (classical T-cross) -->
+      <path d="M92 66 L 128 66 L 128 70 L 92 70 Z" fill="#030712"/>
+      <path d="M108 70 L 112 70 L 112 84 L 108 84 Z" fill="#030712"/>
+      <!-- faint glow inside visor -->
+      <rect x="94" y="67" width="32" height="2.3" rx="1" fill="#67e8f9" filter="url(#softGlow)" opacity="0.7"/>
+      <!-- helmet gold band -->
+      <rect x="84" y="88" width="52" height="3" fill="url(#gold)" opacity="0.9"/>
+      <!-- helmet crest / plume holder -->
+      <rect x="106" y="30" width="8" height="10" fill="url(#gold)" stroke="#6b4a0a" stroke-width="0.4"/>
+      <!-- plume (feathered crest) -->
+      <path d="M110 30 Q 100 20 94 10 Q 108 14 114 24 Q 122 12 136 8 Q 124 22 118 30 Z"
+            fill="url(#cloak)" stroke="#60a5fa" stroke-width="0.6"/>
+      <path d="M110 28 Q 104 20 100 14 Q 110 16 114 24" fill="#1e3a8a" opacity="0.9"/>
+
+      <!-- LEGS: cuisses -->
+      <path d="M80 203 L 86 258 L 100 258 L 102 206 Z" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+      <path d="M118 206 L 120 258 L 134 258 L 140 203 Z" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+      <!-- knee cops -->
+      <circle cx="93" cy="260" r="6" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+      <circle cx="127" cy="260" r="6" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+      <circle cx="93" cy="260" r="2" fill="url(#gold)"/>
+      <circle cx="127" cy="260" r="2" fill="url(#gold)"/>
+      <!-- greaves -->
+      <path d="M87 266 L 100 266 L 98 294 L 89 294 Z" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+      <path d="M120 266 L 133 266 L 131 294 L 122 294 Z" fill="url(#steel)" stroke="#1a2338" stroke-width="0.8"/>
+      <!-- sabatons (armored boots) -->
+      <path d="M86 294 L 102 294 L 106 302 L 84 302 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+      <path d="M118 294 L 134 294 L 136 302 L 116 302 Z" fill="url(#steelDark)" stroke="#1a2338" stroke-width="0.6"/>
+    </g>
+
+    <!-- magical sparkle orbs floating around (ambience) -->
+    <circle class="g-spark s1" cx="30" cy="90"  r="2" fill="url(#orb)"/>
+    <circle class="g-spark s2" cx="190" cy="140" r="2.5" fill="url(#orb)"/>
+    <circle class="g-spark s3" cx="200" cy="250" r="1.6" fill="url(#orb)"/>
+    <circle class="g-spark s4" cx="18" cy="220" r="1.8" fill="url(#orb)"/>
+  </svg>
+  <div class="g-caption">RAKSHAK<br><span>Guardian of VAJRA</span></div>
+</div>

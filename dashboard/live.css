@@ -1,0 +1,210 @@
+/* Live Flow page */
+
+.live-stage {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(34,211,238,0.07), transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(34,197,94,0.06), transparent 50%),
+    #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 4px;
+  margin-top: 6px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.5s ease both;
+}
+.live-stage::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.04), transparent);
+  animation: sheen 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes sheen {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+#flowSvg { width: 100%; height: 260px; display: block; }
+
+/* Stable glowing lines (NO walking dashes). */
+.live-link {
+  fill: none;
+  stroke: #2b3b67;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.live-link.hot {
+  stroke: var(--cyan);
+  filter: drop-shadow(0 0 6px var(--cyan));
+}
+
+/* Node styles */
+.node rect {
+  fill: var(--panel);
+  stroke: #2b3b67;
+  stroke-width: 1.5;
+  transition: stroke 0.2s ease, filter 0.2s ease;
+}
+.node .t  { fill: var(--text);  font-size: 13px; font-weight: 700; letter-spacing: 0.03em; font-family: inherit; }
+.node .st { fill: #93c5fd; font-size: 11px; font-family: inherit; }
+.node .st2{ fill: #9ca3af; font-size: 9px;  font-family: inherit; }
+
+.node .ring {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.node.active .ring {
+  opacity: 1;
+  animation: spinring 2s linear infinite;
+  filter: drop-shadow(0 0 4px var(--cyan));
+}
+@keyframes spinring {
+  to { transform: rotate(360deg); }
+}
+
+.node.active rect {
+  stroke: var(--cyan);
+  filter: drop-shadow(0 0 8px rgba(34,211,238,0.6));
+}
+.node.done rect {
+  stroke: var(--green);
+  filter: drop-shadow(0 0 6px rgba(34,197,94,0.4));
+}
+.node.err rect {
+  stroke: var(--red);
+  filter: drop-shadow(0 0 6px rgba(239,68,68,0.5));
+}
+
+/* Glowing white dot with pulse */
+.flow-dot {
+  fill: #ffffff;
+  filter:
+    drop-shadow(0 0 6px #ffffff)
+    drop-shadow(0 0 14px rgba(34,211,238,0.95))
+    drop-shadow(0 0 22px rgba(168,85,247,0.5));
+  transition: cx 0.6s cubic-bezier(0.4, 0, 0.2, 1), cy 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: dotPulse 1.6s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { r: 6; }
+  50%      { r: 9; }
+}
+
+/* Color-code node types for stronger contrast */
+.node.n-red    rect { stroke: #ef4444; }
+.node.n-orange rect { stroke: #f59e0b; }
+.node.n-blue   rect { stroke: #3b82f6; }
+.node.n-purple rect { stroke: #a855f7; }
+.node.n-green  rect { stroke: #22c55e; }
+.node.n-red    .ring { stroke: #ef4444; }
+.node.n-orange .ring { stroke: #f59e0b; }
+.node.n-blue   .ring { stroke: #3b82f6; }
+.node.n-purple .ring { stroke: #a855f7; }
+.node.n-green  .ring { stroke: #22c55e; }
+
+/* Info row below the diagram */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  animation: fadeUp 0.5s ease both;
+  animation-delay: 0.1s;
+}
+.info-card {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.info-h { font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.06em; }
+.info-v { font-size: 20px; font-weight: 700; font-family: ui-monospace, Menlo, Consolas, monospace; margin-top: 4px; }
+.info-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Run start / verdict reveal fades */
+@keyframes stageFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(34,211,238,0.0); }
+  40%  { box-shadow: 0 0 0 6px rgba(34,211,238,0.25); }
+  100% { box-shadow: 0 0 0 0 rgba(34,211,238,0.0); }
+}
+.live-stage.running { animation: stageFlash 0.9s ease-out; }
+
+@keyframes verdictReveal {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.info-v.reveal { animation: verdictReveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes evtIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.event-log .evt { animation: evtIn 0.25s ease both; }
+
+/* --- VAJRA alert toast --- */
+.vajra-toast {
+  position: fixed; top: 24px; right: 24px;
+  min-width: 320px; max-width: 420px;
+  padding: 14px 44px 14px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-family: inherit;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(0,0,0,0.3);
+  z-index: 9999;
+  animation: toastIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.vajra-toast.breach {
+  background: linear-gradient(135deg, #991b1b, #dc2626);
+  border: 1px solid #fecaca;
+  animation: toastIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both,
+             breachPulse 1.2s ease-in-out infinite 0.4s;
+}
+.vajra-toast.safe {
+  background: linear-gradient(135deg, #166534, #22c55e);
+  border: 1px solid #bbf7d0;
+}
+.vajra-toast .t { font-weight: 800; font-size: 15px; letter-spacing: 0.04em; }
+.vajra-toast .s { font-size: 13px; margin-top: 4px; opacity: 0.95; }
+.vajra-toast .x {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: 0; color: #fff; font-size: 18px; cursor: pointer;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes breachPulse {
+  0%,100% { box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(239,68,68,0.4); }
+  50%     { box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 48px rgba(239,68,68,0.9); }
+}
+
+/* Event log */
+.event-log {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.event-log .evt {
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--border);
+  display: flex;
+  gap: 10px;
+}
+.event-log .evt:last-child { border-bottom: 0; }
+.event-log .ts    { color: var(--muted); flex: 0 0 110px; }
+.event-log .stage { flex: 0 0 140px; color: var(--cyan); font-weight: 700; }
+.event-log .body  { color: var(--text); white-space: pre-wrap; word-break: break-word; flex: 1; }
+.event-log .evt.verdict-win    .stage { color: var(--red);   }
+.event-log .evt.verdict-block  .stage { color: var(--green); }
+.event-log .evt.error          .stage { color: var(--red); }

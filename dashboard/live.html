@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VAJRA AI &mdash; Live Flow</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/live.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div><div class="name">VAJRA AI</div><div class="tag">RED vs BLUE</div></div>
+      </div>
+      <nav class="nav">
+        <a class="item" href="/"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</a>
+        <a class="item active" href="/live.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/></svg>Live Flow</a>
+        <a class="item" href="/notifications.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications<span id="navUnread" class="dot" style="display:none"></span></a>
+        <a class="item" href="/#atkDetailBox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/></svg>Attack Detail</a>
+        <a class="item" href="/#taskDetailBox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Legit Tasks</a>
+        <a class="item" href="/#curvePanel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>Analytics</a>
+        <a class="item" href="/#approvalsBox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Approvals</a>
+      </nav>
+      <div class="foot"><div>Powered by</div><div style="margin-top:4px"><strong>VAJRA AI</strong></div></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="page-title">Live Flow</div>
+        <div class="right">
+          <select id="atkPicker"></select>
+          <select id="modePicker">
+            <option value="no_defense">no_defense</option>
+            <option value="keyword_filter">keyword_filter</option>
+            <option value="llm_only">llm_only</option>
+            <option value="full_guardian" selected>full_guardian</option>
+          </select>
+          <button id="runBtn">Run Attack</button>
+          <button id="stopBtn" disabled>Stop</button>
+          <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <span id="themeLabel">Light</span>
+          </button>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="ph">
+          <div><h2>Real-time backend flow</h2>
+               <div class="sub">Lines are stable. The glowing dot shows what the backend is doing right now.</div></div>
+          <span class="chip live" id="phaseChip">IDLE</span>
+        </div>
+
+        <div class="live-stage">
+          <svg id="flowSvg" viewBox="0 0 1000 260" preserveAspectRatio="xMidYMid meet">
+            <!-- fixed glowing lines -->
+            <path class="live-link" id="segA" d="M110 130 H 230"/>
+            <path class="live-link" id="segB" d="M350 130 H 470"/>
+            <path class="live-link" id="segC" d="M590 130 H 710"/>
+            <path class="live-link" id="segD" d="M830 130 H 950"/>
+
+            <!-- nodes -->
+            <g class="node n-red" id="nodeAttacker" data-stage="inject">
+              <rect x="10"  y="80" width="100" height="100" rx="12"/>
+              <text x="60" y="118" text-anchor="middle" class="t">RED TEAM</text>
+              <text x="60" y="140" text-anchor="middle" class="st">Attacker</text>
+              <text x="60" y="158" text-anchor="middle" class="st2">Gemini</text>
+              <circle class="ring" cx="60" cy="130" r="52"/>
+            </g>
+            <g class="node n-orange" id="nodePayload" data-stage="world_ready">
+              <rect x="230" y="80" width="120" height="100" rx="12"/>
+              <text x="290" y="118" text-anchor="middle" class="t">PAYLOAD</text>
+              <text x="290" y="140" text-anchor="middle" class="st">Email / Page</text>
+              <text x="290" y="158" text-anchor="middle" class="st2">Untrusted</text>
+              <circle class="ring" cx="290" cy="130" r="62"/>
+            </g>
+            <g class="node n-purple" id="nodeMiddleware" data-stage="guardian_decision">
+              <rect x="470" y="80" width="120" height="100" rx="12"/>
+              <text x="530" y="114" text-anchor="middle" class="t">MIDDLEWARE</text>
+              <text x="530" y="134" text-anchor="middle" class="st">VAJRA AI</text>
+              <text x="530" y="156" text-anchor="middle" class="st2">5 layers</text>
+              <circle class="ring" cx="530" cy="130" r="62"/>
+            </g>
+            <g class="node n-blue" id="nodeLLM" data-stage="tool_call">
+              <rect x="710" y="80" width="120" height="100" rx="12"/>
+              <text x="770" y="118" text-anchor="middle" class="t">TARGET</text>
+              <text x="770" y="140" text-anchor="middle" class="st">AP Assistant</text>
+              <text x="770" y="158" text-anchor="middle" class="st2">Groq LLM</text>
+              <circle class="ring" cx="770" cy="130" r="62"/>
+            </g>
+            <g class="node n-green" id="nodeOutput" data-stage="verdict">
+              <rect x="950" y="80" width="40" height="100" rx="12"/>
+              <text x="970" y="128" text-anchor="middle" class="t" style="font-size:9px">OUT</text>
+              <text x="970" y="146" text-anchor="middle" class="st" style="font-size:8px">verdict</text>
+              <circle class="ring" cx="970" cy="130" r="40"/>
+            </g>
+
+            <!-- glowing dot -->
+            <circle id="flowDot" class="flow-dot" cx="60" cy="130" r="7"/>
+          </svg>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-h">Current stage</div>
+            <div class="info-v" id="currentStage">&mdash;</div>
+            <div class="info-sub" id="currentStageSub">waiting</div>
+          </div>
+          <div class="info-card">
+            <div class="info-h">Verdict</div>
+            <div class="info-v" id="verdictBox">&mdash;</div>
+            <div class="info-sub" id="verdictRules">&nbsp;</div>
+          </div>
+          <div class="info-card">
+            <div class="info-h">Guardian layers hit</div>
+            <div class="info-v" id="layersHit">0</div>
+            <div class="info-sub" id="layersBreakdown">&nbsp;</div>
+          </div>
+          <div class="info-card">
+            <div class="info-h">Steps</div>
+            <div class="info-v" id="stepsCount">0</div>
+            <div class="info-sub">tool calls so far</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="ph">
+          <div><h2>Event log</h2>
+               <div class="sub">Each row is one backend event streamed in real time via SSE</div></div>
+        </div>
+        <div class="event-log" id="eventLog"><div class="empty">No run yet. Pick an attack above and click Run.</div></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/live.js"></script>
+  <script src="/guardian-loader.js"></script>
+</body>
+</html>
