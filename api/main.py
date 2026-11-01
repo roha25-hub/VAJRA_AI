@@ -522,6 +522,39 @@ def live_sample_attacks(limit: int = 30) -> list[dict[str, Any]]:
     return picked
 
 
+@app.get("/api/pentest/run")
+def pentest_run():
+    """SSE stream of a full pentest run. Takes ~45-90s on free tier."""
+    from eval.pentest import run_pentest
+    from llm.gateway import Gateway as _Gw
+    q: "Queue[dict[str, Any]]" = Queue()
+
+    def worker():
+        def emit(**payload):
+            q.put({"ts": datetime.now(timezone.utc).isoformat(), **payload})
+        try:
+            run_pentest(_Gw.from_config(), db(), emit)
+        except Exception as e:
+            emit(stage="error", msg=str(e)[:300])
+        finally:
+            q.put({"stage": "_end"})
+
+    Thread(target=worker, daemon=True).start()
+
+    def gen():
+        yield "retry: 10000\n\n"
+        while True:
+            try: evt = q.get(timeout=60)
+            except Empty: yield ": keep-alive\n\n"; continue
+            if evt.get("stage") == "_end": return
+            yield f"data: {_json.dumps(evt)}\n\n"
+            if evt.get("stage") == "done": return
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache",
+                                      "X-Accel-Buffering": "no"})
+
+
 @app.get("/api/alerts/status")
 def alerts_status() -> dict[str, Any]:
     """Which alert channels are configured in .env."""

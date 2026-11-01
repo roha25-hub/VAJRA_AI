@@ -43,6 +43,7 @@
           <div class="date-chip" id="dateChip">—</div>
           Run: <select id="runPicker"></select>
           <button id="refreshBtn">Refresh</button>
+          <button id="pentestBtn" class="pentest-btn" title="Run a full pentest on VAJRA">⚡ PENTEST</button>
           <button class="theme-toggle" id="themeToggle" title="Toggle theme">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
             <span id="themeLabel">Light</span>
@@ -285,6 +286,33 @@
   </div>
 
   <script src="/app.js"></script>
+<!-- Pentest modal (hidden until run) -->
+<div class="pentest-modal" id="pentestModal" style="display:none">
+  <div class="pentest-card">
+    <div class="pentest-head">
+      <div class="pentest-title">⚡ VAJRA Security Pentest</div>
+      <button class="pentest-close" id="pentestClose">×</button>
+    </div>
+    <div class="pentest-body">
+      <div class="pentest-progress-wrap">
+        <div class="pentest-progress-track"><div class="pentest-progress-bar" id="pentestBar" style="width:0%"></div></div>
+        <div class="pentest-progress-text" id="pentestPhase">preparing…</div>
+      </div>
+      <div class="pentest-grade" id="pentestGrade" style="display:none">
+        <div class="grade-letter" id="pentestLetter">—</div>
+        <div class="grade-score"><span id="pentestScore">0</span><span style="opacity:0.5">/100</span></div>
+        <div class="grade-sub" id="pentestSub">—</div>
+      </div>
+      <div class="pentest-stats" id="pentestStats" style="display:none"></div>
+      <div class="pentest-strengths" id="pentestStrengths" style="display:none"></div>
+      <div class="pentest-weaknesses" id="pentestWeaknesses" style="display:none"></div>
+      <div class="pentest-actions" id="pentestActions" style="display:none"></div>
+      <div class="pentest-log" id="pentestLog"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/pentest.js"></script>
 <script src="/guardian-loader.js"></script>
 </body>
 </html>
