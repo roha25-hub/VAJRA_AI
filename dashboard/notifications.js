@@ -25,11 +25,14 @@ function render() {
     const msg = sev === 'breach'
       ? `Attack <b>won</b> on <b>${r.goal}</b> using <b>${r.family}</b> (mode: ${r.defense_mode})`
       : `VAJRA blocked attack on <b>${r.goal}</b> at <b>${r.layer || 'guardian'}</b> (mode: ${r.defense_mode})`;
+    const fp = r.fingerprint ? `<span style="color:var(--cyan)">#${r.fingerprint}</span>` : '';
+    const preview = r.payload_preview
+      ? `<div class="prev">${(r.payload_preview || '').replace(/</g,'&lt;').slice(0, 120)}…</div>` : '';
     el.innerHTML = `
       <div class="pulse"></div>
       <span class="tag">${title}</span>
-      <div class="msg">${msg}</div>
-      <div class="meta">${r.attack_id}<br>${r.generated_by}</div>
+      <div class="msg">${msg}${preview}</div>
+      <div class="meta">${r.attack_id}<br>${r.generated_by} ${fp}</div>
       <div class="ts">${fmtTs(r.ts)}</div>`;
     list.appendChild(el);
   }

@@ -355,8 +355,28 @@ def _run_attack_and_emit(attack_id: str, mode: str, q: "Queue[dict[str, Any]]") 
         # Pipeline: try live LLM red-team first, fall back to DB payload.
         payload, source = _resolve_payload(atk_row, gw, emit)
 
+        # If we actually got a fresh LLM payload, save it as its own row
+        # so each click leaves a distinct trace in the DB + dashboard.
+        import time as _tnow
+        if source == "live_llm":
+            live_atk_id = f"live_{int(_tnow.time()*1000)}_{atk_row['attack_id']}"
+            try:
+                from sandbox.db import AttackRecord
+                db().insert_attack(AttackRecord(
+                    attack_id=live_atk_id, family=atk_row["family"],
+                    goal=atk_row["goal"], payload=payload,
+                    injection_point=atk_row["injection_point"],
+                    parent_attack_id=atk_row["attack_id"],
+                    generated_by="live_gemini", is_seed=False,
+                    round=0, split="train",
+                ))
+            except Exception:
+                live_atk_id = atk_row["attack_id"]  # fall back to seed id
+        else:
+            live_atk_id = atk_row["attack_id"]
+
         atk = SeedAttack(
-            attack_id=atk_row["attack_id"], family=atk_row["family"],
+            attack_id=live_atk_id, family=atk_row["family"],
             goal=atk_row["goal"], payload=payload,
             injection_point=atk_row["injection_point"],
         )
@@ -477,12 +497,29 @@ def live_attack(attack_id: str, mode: str = "full_guardian"):
 
 
 @app.get("/api/live/sample-attacks")
-def live_sample_attacks(limit: int = 15) -> list[dict[str, Any]]:
-    """A short list of attacks the Live page can offer in its picker."""
+def live_sample_attacks(limit: int = 30) -> list[dict[str, Any]]:
+    """A diverse list of attacks the Live page can offer in its picker.
+
+    Picks a few from each (family, goal) combo so the dropdown spans all
+    tool categories: email, browser/files, mock payment.
+    """
     rows = db()._client.table("attacks").select(
         "attack_id, family, goal, is_seed, generated_by"
-    ).order("is_seed", desc=True).limit(limit).execute().data
-    return rows or []
+    ).limit(500).execute().data or []
+    buckets: dict[tuple[str, str], list[dict]] = {}
+    for r in rows:
+        key = (r.get("family", "?"), r.get("goal", "?"))
+        buckets.setdefault(key, []).append(r)
+    picked: list[dict] = []
+    while len(picked) < limit and any(buckets.values()):
+        for k in list(buckets.keys()):
+            if buckets[k]:
+                picked.append(buckets[k].pop(0))
+                if len(picked) >= limit:
+                    break
+    # Prefer seeds first within the picked set so they're easy to find.
+    picked.sort(key=lambda r: (not r.get("is_seed"), r.get("family", ""), r.get("goal", "")))
+    return picked
 
 
 @app.get("/api/alerts/status")
@@ -494,20 +531,30 @@ def alerts_status() -> dict[str, Any]:
 
 @app.get("/api/notifications")
 def notifications(limit: int = 50) -> list[dict[str, Any]]:
-    """Recent alert-worthy events, newest first. Joined from scoreboard+attacks."""
+    """Recent alert-worthy events, newest first. Joined from scoreboard+attacks.
+
+    Includes a short fingerprint of the actual payload used so repeated
+    runs with the same attack_id can be seen as distinct attempts.
+    """
+    import hashlib
     sb = (db()._client.table("scoreboard")
-          .select("attack_id, defense_mode, success, blocked_layer, run_id, created_at")
+          .select("attack_id, defense_mode, success, blocked_layer, run_id, trial, created_at")
           .order("created_at", desc=True).limit(limit).execute().data or [])
     if not sb:
         return []
     atk_ids = list({r["attack_id"] for r in sb})
     atk_rows = (db()._client.table("attacks")
-                .select("attack_id, family, goal, generated_by")
+                .select("attack_id, family, goal, generated_by, payload")
                 .in_("attack_id", atk_ids).execute().data or [])
     by_id = {a["attack_id"]: a for a in atk_rows}
     out = []
     for r in sb:
         a = by_id.get(r["attack_id"], {})
+        payload = a.get("payload") or ""
+        # Fingerprint = hash of (payload + trial id) so even cached rows
+        # for repeat clicks look distinct — trial is a monotonic nonce.
+        fp_src = f"{payload}|{r.get('trial', 0)}"
+        fp = hashlib.sha256(fp_src.encode("utf-8", "replace")).hexdigest()[:8]
         out.append({
             "attack_id": r["attack_id"],
             "run_id": r["run_id"],
@@ -517,6 +564,9 @@ def notifications(limit: int = 50) -> list[dict[str, Any]]:
             "goal": a.get("goal", "?"),
             "generated_by": a.get("generated_by", "?"),
             "layer": r.get("blocked_layer"),
+            "fingerprint": fp,
+            "trial": r.get("trial", 0),
+            "payload_preview": payload[:140],
             "ts": r["created_at"],
         })
     return out
