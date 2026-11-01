@@ -25,7 +25,32 @@
   to   { transform: translateX(100%); }
 }
 
-#flowSvg { width: 100%; height: 260px; display: block; }
+#flowSvg { width: 100%; height: 380px; display: block; }
+
+/* --- Specialist sub-nodes --- */
+.spec-link {
+  fill: none; stroke: #334066; stroke-width: 2;
+  stroke-dasharray: 5 5; opacity: 0.6;
+  transition: stroke 0.3s ease, opacity 0.3s ease;
+}
+.spec-link.hot { stroke: #22d3ee; opacity: 1; filter: drop-shadow(0 0 6px #22d3ee); }
+.spec-link.block { stroke: #ef4444; opacity: 1; filter: drop-shadow(0 0 8px #ef4444); }
+.spec-link.allow { stroke: #22c55e; opacity: 1; filter: drop-shadow(0 0 6px #22c55e); }
+
+.spec rect {
+  fill: var(--panel); stroke: #4a5577; stroke-width: 1.5;
+  transition: stroke 0.25s ease, filter 0.25s ease;
+}
+.spec text {
+  fill: #93c5fd; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.03em; font-family: inherit;
+}
+.spec.active rect { stroke: var(--cyan); filter: drop-shadow(0 0 8px rgba(34,211,238,0.7)); }
+.spec.block  rect { stroke: var(--red);   filter: drop-shadow(0 0 10px rgba(239,68,68,0.75)); }
+.spec.block  text { fill: #fecaca; }
+.spec.allow  rect { stroke: var(--green); filter: drop-shadow(0 0 8px rgba(34,197,94,0.6)); }
+.spec.allow  text { fill: #bbf7d0; }
+.spec.abstain rect { stroke: #4a5577; opacity: 0.5; }
 
 /* Stable glowing lines (NO walking dashes). */
 .live-link {

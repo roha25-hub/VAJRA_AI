@@ -22,6 +22,7 @@ Defense modes (plan §6.6):
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -34,6 +35,7 @@ from . import detector as detector_layer
 from . import intent as intent_layer
 from .approvals import ApprovalQueue
 from .decisions import Decision
+from .orchestrator import Orchestrator
 
 
 Mode = Literal["no_defense", "keyword_filter", "llm_only", "full_guardian"]
@@ -63,6 +65,17 @@ class GuardianProxy:
     approvals: ApprovalQueue = field(default_factory=ApprovalQueue)
     gateway: Any | None = None   # llm.gateway.Gateway, lazily set
     trace: list[ProxyTrace] = field(default_factory=list)
+    # When GUARDIAN_MODE=multi (env), the multi-agent orchestrator runs as
+    # layer 3.5 — AFTER policy + taint (always deterministic + authoritative),
+    # BEFORE classifier/intent. Specialists are advisors; union-deny applies.
+    orchestrator: Orchestrator | None = None
+    # Stash of the most recent orchestrator votes, so wrappers (Live Flow
+    # SSE) can read + emit them per tool call.
+    _last_votes: list[Any] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        if self.orchestrator is None and os.getenv("GUARDIAN_MODE", "mono") == "multi":
+            self.orchestrator = Orchestrator()
 
     def __call__(self, world: World, tool: str, args: dict[str, Any]) -> dict[str, Any]:
         decision = self._decide(world, tool, args)
@@ -126,6 +139,23 @@ class GuardianProxy:
         d = taint_layer.check(self.taint, world, tool, args)
         if d.verdict != "pass":
             return d
+
+        # Multi-agent advisory layer (opt-in via GUARDIAN_MODE=multi).
+        # Deterministic policy + taint already ran above. Specialists only
+        # ADD block signals; they never override an allow. No LLM here, so
+        # the orchestrator can't be prompt-injected.
+        if self.orchestrator is not None:
+            source_trust = "untrusted" if any(
+                tag == "untrusted" for tag, _ in self.taint.snippets
+            ) else "trusted"
+            result = self.orchestrator.consult(
+                tool=tool, args=args,
+                source_trust=source_trust,
+                source_id=f"turn-{len(self.trace)}",
+            )
+            self._last_votes = list(result.votes)
+            if result.decision.verdict == "block":
+                return result.decision
 
         snippets = [t for _tag, t in self.taint.snippets]
         d = detector_layer.check(snippets, tool, args)

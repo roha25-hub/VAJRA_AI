@@ -396,6 +396,14 @@ def _run_attack_and_emit(attack_id: str, mode: str, q: "Queue[dict[str, Any]]") 
             def __call__(self, w, tool, args):  # type: ignore[override]
                 emit("tool_call", tool=tool, args=args)
                 result = super().__call__(w, tool, args)
+                # Emit per-specialist votes (multi mode) BEFORE the final
+                # guardian_decision so the UI can light sub-nodes first.
+                for v in getattr(self, "_last_votes", []) or []:
+                    emit("specialist_vote",
+                         tool=tool, specialist=v.specialist,
+                         vote=v.vote, reason=v.reason,
+                         latency_ms=v.latency_ms)
+                self._last_votes = []  # clear for next call
                 step = self.trace[-1] if self.trace else None
                 if step:
                     d = step.decision
@@ -553,6 +561,22 @@ def pentest_run():
     return StreamingResponse(gen(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache",
                                       "X-Accel-Buffering": "no"})
+
+
+@app.get("/api/guardian/mode")
+def guardian_mode() -> dict[str, Any]:
+    """Report whether we're in mono or multi-agent mode."""
+    import os as _os
+    mode = _os.getenv("GUARDIAN_MODE", "mono")
+    specialists: list[str] = []
+    if mode == "multi":
+        from agents.guardian.specialists.payment import PaymentGuardian
+        from agents.guardian.specialists.email import EmailGuardian
+        from agents.guardian.specialists.files import FileGuardian
+        from agents.guardian.specialists.browser import BrowserGuardian
+        specialists = [PaymentGuardian.name, EmailGuardian.name,
+                       FileGuardian.name, BrowserGuardian.name]
+    return {"guardian_mode": mode, "specialists": specialists}
 
 
 @app.get("/api/alerts/status")

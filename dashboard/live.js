@@ -105,9 +105,38 @@ function showAlert(evt) {
   setTimeout(() => el.remove(), evt.severity === 'breach' ? 15000 : 6000);
 }
 
+// Specialist name -> DOM id for sub-node + its link
+const SPEC_MAP = {
+  'PaymentGuardian': { node: 'specPayment', link: 'specLinkPay'  },
+  'EmailGuardian':   { node: 'specEmail',   link: 'specLinkMail' },
+  'FileGuardian':    { node: 'specFile',    link: 'specLinkFile' },
+  'BrowserGuardian': { node: 'specBrowser', link: 'specLinkWeb'  },
+};
+function resetSpecialists() {
+  Object.values(SPEC_MAP).forEach(({node, link}) => {
+    const n = $(node); if (n) n.classList.remove('active','block','allow','abstain');
+    const l = $(link); if (l) l.classList.remove('hot','block','allow');
+  });
+}
+function lightSpecialist(name, vote) {
+  const m = SPEC_MAP[name]; if (!m) return;
+  const n = $(m.node); const l = $(m.link);
+  if (!n || !l) return;
+  n.classList.remove('active','block','allow','abstain');
+  l.classList.remove('hot','block','allow');
+  if (vote === 'block')   { n.classList.add('block'); l.classList.add('block'); }
+  else if (vote === 'allow'){ n.classList.add('allow'); l.classList.add('allow'); }
+  else                    { n.classList.add('abstain'); l.classList.add('hot'); }
+}
+
 function handleEvent(evt) {
   appendEvent(evt);
   if (evt.stage === 'alert') { showAlert(evt); return; }
+  if (evt.stage === 'specialist_vote') {
+    lightSpecialist(evt.specialist, evt.vote);
+    return;
+  }
+  if (evt.stage === 'tool_call') { resetSpecialists(); }
   const idx = nodeIdxForStage(evt.stage);
   if (idx >= 0) moveDotTo(idx);
 
@@ -251,6 +280,26 @@ $('themeToggle').onclick = () => {
 };
 
 loadAttacks().then(() => moveDotTo(0));
+
+// Reveal specialist layer only when server is running GUARDIAN_MODE=multi
+(async () => {
+  try {
+    const info = await fetch('/api/guardian/mode').then(r => r.json());
+    const chip = $('guardianModeChip');
+    if (chip) {
+      chip.textContent = 'guardian: ' + info.guardian_mode;
+      chip.style.color = info.guardian_mode === 'multi' ? 'var(--cyan)' : 'var(--muted)';
+      chip.style.borderColor = info.guardian_mode === 'multi'
+        ? 'rgba(34,211,238,0.4)' : 'var(--border)';
+    }
+    if (info.guardian_mode === 'multi') {
+      const sl = $('specialistLayer');
+      if (sl) sl.style.display = 'block';
+      const sub = $('middlewareSub');
+      if (sub) sub.textContent = '5 layers + 4 agents';
+    }
+  } catch {}
+})();
 
 // Ask for native notifications (user prompt, no harm if denied)
 if (window.Notification && Notification.permission === 'default') {

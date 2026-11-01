@@ -51,10 +51,11 @@
           <div><h2>Real-time backend flow</h2>
                <div class="sub">Lines are stable. The glowing dot shows what the backend is doing right now.</div></div>
           <span class="chip live" id="phaseChip">IDLE</span>
+          <span class="chip" id="guardianModeChip" style="margin-left:8px">guardian: …</span>
         </div>
 
         <div class="live-stage">
-          <svg id="flowSvg" viewBox="0 0 1000 260" preserveAspectRatio="xMidYMid meet">
+          <svg id="flowSvg" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid meet">
             <!-- fixed glowing lines -->
             <path class="live-link" id="segA" d="M110 130 H 230"/>
             <path class="live-link" id="segB" d="M350 130 H 470"/>
@@ -80,8 +81,35 @@
               <rect x="470" y="80" width="120" height="100" rx="12"/>
               <text x="530" y="114" text-anchor="middle" class="t">MIDDLEWARE</text>
               <text x="530" y="134" text-anchor="middle" class="st">VAJRA AI</text>
-              <text x="530" y="156" text-anchor="middle" class="st2">5 layers</text>
+              <text x="530" y="156" text-anchor="middle" class="st2" id="middlewareSub">5 layers</text>
               <circle class="ring" cx="530" cy="130" r="62"/>
+            </g>
+
+            <!-- Specialist branches: appear only in multi mode.
+                 Layout: 2 above middleware (y=10), 2 below (y=270).
+                 Lines connect to the middleware top (y=80) and bottom (y=180). -->
+            <g id="specialistLayer" style="display:none">
+              <path class="spec-link" id="specLinkPay"  d="M490 80  Q 450 50  420 42"/>
+              <path class="spec-link" id="specLinkWeb"  d="M570 80  Q 610 50  640 42"/>
+              <path class="spec-link" id="specLinkMail" d="M490 180 Q 450 230 420 258"/>
+              <path class="spec-link" id="specLinkFile" d="M570 180 Q 610 230 640 258"/>
+
+              <g class="spec" id="specPayment">
+                <rect x="320" y="10" width="200" height="32" rx="8"/>
+                <text x="420" y="31" text-anchor="middle">💰 PaymentGuardian</text>
+              </g>
+              <g class="spec" id="specBrowser">
+                <rect x="540" y="10" width="200" height="32" rx="8"/>
+                <text x="640" y="31" text-anchor="middle">🌐 BrowserGuardian</text>
+              </g>
+              <g class="spec" id="specEmail">
+                <rect x="320" y="258" width="200" height="32" rx="8"/>
+                <text x="420" y="279" text-anchor="middle">📧 EmailGuardian</text>
+              </g>
+              <g class="spec" id="specFile">
+                <rect x="540" y="258" width="200" height="32" rx="8"/>
+                <text x="640" y="279" text-anchor="middle">📁 FileGuardian</text>
+              </g>
             </g>
             <g class="node n-blue" id="nodeLLM" data-stage="tool_call">
               <rect x="710" y="80" width="120" height="100" rx="12"/>
