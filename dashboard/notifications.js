@@ -28,10 +28,18 @@ function render() {
     const fp = r.fingerprint ? `<span style="color:var(--cyan)">#${r.fingerprint}</span>` : '';
     const preview = r.payload_preview
       ? `<div class="prev">${(r.payload_preview || '').replace(/</g,'&lt;').slice(0, 120)}…</div>` : '';
+    // Attribution chip (zero-LLM TF-IDF label)
+    let attrChip = '';
+    if (r.attribution && r.attribution.pattern && r.attribution.pattern !== 'unknown') {
+      const sev = r.attribution.severity || 'low';
+      attrChip = `<span class="attr-chip sev-${sev}" title="${r.attribution.family} · conf ${r.attribution.confidence}">${r.attribution.label}</span>`;
+    } else if (r.attribution) {
+      attrChip = `<span class="attr-chip sev-low">Unknown pattern</span>`;
+    }
     el.innerHTML = `
       <div class="pulse"></div>
       <span class="tag">${title}</span>
-      <div class="msg">${msg}${preview}</div>
+      <div class="msg">${msg} ${attrChip}${preview}</div>
       <div class="meta">${r.attack_id}<br>${r.generated_by} ${fp}</div>
       <div class="ts">${fmtTs(r.ts)}</div>`;
     list.appendChild(el);
@@ -47,15 +55,39 @@ function renderKpis() {
   $('kSafe').textContent = safe;
 }
 
+function renderAttrStats(data) {
+  const host = $('attrStats');
+  if (!host) return;
+  const counts = (data && data.counts) || [];
+  if (!counts.length) {
+    host.innerHTML = '<div class="empty">No classified attacks yet.</div>';
+    return;
+  }
+  const max = Math.max(...counts.map(c => c.count));
+  host.innerHTML = counts.map(c => {
+    const pct = Math.round(100 * c.count / Math.max(1, max));
+    return `<div class="attr-row sev-${c.severity}">
+      <div class="attr-head">
+        <span class="attr-label">${c.label}</span>
+        <span class="attr-fam">${c.family}</span>
+        <span class="attr-count">${c.count}</span>
+      </div>
+      <div class="attr-bar"><div class="attr-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
 async function load() {
   try {
-    const [rows, status] = await Promise.all([
+    const [rows, status, stats] = await Promise.all([
       fetch('/api/notifications?limit=100').then(r => r.json()),
       fetch('/api/alerts/status').then(r => r.json()).catch(() => ({})),
+      fetch('/api/attribution/stats?limit=300').then(r => r.json()).catch(() => ({counts:[]})),
     ]);
     allRows = Array.isArray(rows) ? rows : [];
     render();
     renderKpis();
+    renderAttrStats(stats);
     const chan = [];
     if (status.twilio) chan.push('Twilio');
     if (status.elevenlabs) chan.push('ElevenLabs');

@@ -422,13 +422,28 @@ def _run_attack_and_emit(attack_id: str, mode: str, q: "Queue[dict[str, Any]]") 
         emit("run_start", mode=mode)
         result = run_target(world, llm_policy(gw), proxy=base, step_cap=14)
         v = judge(world, result)
+
+        # Attribute the attack's payload to a known pattern (TF-IDF).
+        try:
+            from agents.attribution.attributor import classify as _classify
+            attr = _classify(atk.payload)
+            emit("attribution",
+                 pattern=attr.pattern, label=attr.label,
+                 family=attr.family, severity=attr.severity,
+                 confidence=attr.confidence, runners_up=attr.runners_up)
+            attr_dict = attr.to_dict()
+        except Exception as _ae:
+            attr_dict = None
+            emit("attribution_error", msg=str(_ae)[:160])
+
         emit("verdict",
              success=v.success,
              rules_fired=v.rules_fired,
              summary=result.summary[:300],
              steps=len(result.trace),
              ledger=world.ledger,
-             outbox=world.outbox)
+             outbox=world.outbox,
+             attribution=attr_dict)
 
         # Persist to a dedicated "live_demo" run so dashboard numbers tick up.
         try:
@@ -604,6 +619,12 @@ def notifications(limit: int = 50) -> list[dict[str, Any]]:
                 .select("attack_id, family, goal, generated_by, payload")
                 .in_("attack_id", atk_ids).execute().data or [])
     by_id = {a["attack_id"]: a for a in atk_rows}
+    # Attribution: lazy import so a missing sklearn won't kill the endpoint.
+    try:
+        from agents.attribution.attributor import classify as _classify
+    except Exception:
+        _classify = None
+
     out = []
     for r in sb:
         a = by_id.get(r["attack_id"], {})
@@ -612,6 +633,14 @@ def notifications(limit: int = 50) -> list[dict[str, Any]]:
         # for repeat clicks look distinct — trial is a monotonic nonce.
         fp_src = f"{payload}|{r.get('trial', 0)}"
         fp = hashlib.sha256(fp_src.encode("utf-8", "replace")).hexdigest()[:8]
+
+        attribution = None
+        if _classify and payload:
+            try:
+                attribution = _classify(payload).to_dict()
+            except Exception:
+                attribution = None
+
         out.append({
             "attack_id": r["attack_id"],
             "run_id": r["run_id"],
@@ -624,9 +653,64 @@ def notifications(limit: int = 50) -> list[dict[str, Any]]:
             "fingerprint": fp,
             "trial": r.get("trial", 0),
             "payload_preview": payload[:140],
+            "attribution": attribution,
             "ts": r["created_at"],
         })
     return out
+
+
+@app.get("/api/attribution/library")
+def attribution_library() -> dict[str, Any]:
+    """List of patterns the attributor can recognize (for dashboard legend)."""
+    try:
+        from agents.attribution.attributor import known_patterns
+        return {"patterns": known_patterns()}
+    except Exception as e:
+        return {"patterns": [], "error": str(e)[:200]}
+
+
+@app.get("/api/attribution/stats")
+def attribution_stats(limit: int = 300) -> dict[str, Any]:
+    """Frequency of each attack pattern across recent scoreboard rows."""
+    try:
+        from agents.attribution.attributor import classify as _classify
+    except Exception as e:
+        return {"error": str(e)[:200], "counts": [], "total": 0}
+
+    sb = (db()._client.table("scoreboard")
+          .select("attack_id, created_at").order("created_at", desc=True)
+          .limit(limit).execute().data or [])
+    if not sb:
+        return {"counts": [], "total": 0}
+    ids = list({r["attack_id"] for r in sb})
+    atks = (db()._client.table("attacks")
+            .select("attack_id, payload").in_("attack_id", ids).execute().data or [])
+    pmap = {a["attack_id"]: a.get("payload", "") for a in atks}
+
+    from collections import Counter
+    pattern_counts: Counter[str] = Counter()
+    label_map: dict[str, str] = {}
+    family_map: dict[str, str] = {}
+    severity_map: dict[str, str] = {}
+    for r in sb:
+        p = pmap.get(r["attack_id"], "")
+        if not p:
+            continue
+        try:
+            a = _classify(p)
+        except Exception:
+            continue
+        pattern_counts[a.pattern] += 1
+        label_map[a.pattern] = a.label
+        family_map[a.pattern] = a.family
+        severity_map[a.pattern] = a.severity
+
+    counts = [
+        {"pattern": p, "label": label_map[p], "family": family_map[p],
+         "severity": severity_map[p], "count": c}
+        for p, c in pattern_counts.most_common()
+    ]
+    return {"counts": counts, "total": sum(pattern_counts.values())}
 
 
 # ============================================================

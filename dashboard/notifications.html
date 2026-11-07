@@ -53,6 +53,14 @@
 
       <section class="panel">
         <div class="ph">
+          <div><h2>Threat types (attack attribution)</h2>
+               <div class="sub">What <em>kind</em> of attacks have been running against VAJRA. Offline TF-IDF classifier — no LLM calls.</div></div>
+        </div>
+        <div id="attrStats" class="attr-stats"><div class="empty">Loading…</div></div>
+      </section>
+
+      <section class="panel">
+        <div class="ph">
           <div><h2>Alert history</h2><div class="sub">Pulled from Supabase. Breaches are highlighted red; safe blocks are green.</div></div>
           <span class="chip live" id="autoChip">AUTO 5s</span>
         </div>
